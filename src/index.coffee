@@ -1,3 +1,27 @@
+
+MAX_OFFSET = 7 * 12
+window.noteNames = ['a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#']
+window.notesByName = {}
+window.notesByMIDINo = []
+makeFreqs = ->
+  offset = -4 * 12
+  a = Math.pow 2, 1/12
+  while offset < MAX_OFFSET
+    nnOffset = offset
+    while nnOffset < 0
+      nnOffset += 12
+    noteName = noteNames[(nnOffset) % 12]
+    octave = Math.floor((offset - 3) / 12) + 4
+    if octave > -1
+      freq = 440 * 10000000000 * Math.pow a, offset
+      freq = +(Math.round(freq) * 0.0000000001).toFixed(10)
+      notesByName[noteName + octave] = freq
+      notesByMIDINo.push
+        name: noteName
+        freq: freq
+    offset++
+makeFreqs()
+
 window.Track = (opts) ->
   pointer: 0
   wrap: true
@@ -76,6 +100,20 @@ window.Sequencer = (audio) ->
     schedule()
   stop: ->
     playing = false
+window.LFO = (opts) ->
+  osc = audio.createOscillator()
+  osc.frequency.value = opts.frequency or 1
+  oscGain = opts.audio.createGain()
+  oscGain.gain.value = opts.value or 10
+  osc.connect oscGain
+  connect: (thing) ->
+    oscGain.connect thing
+  osc: osc
+  gain: oscGain
+  start: ->
+    osc.start()
+  stop: ->
+    osc.stop()
 window.waveTableIndex = [
   '01_Saw',
   '10_Dropped_Square',
